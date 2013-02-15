@@ -8,3 +8,5 @@ Package/Library/MobileSubstrate/DynamicLibraries/Symbolicator.plist
 PackageVersion.plist
 
 Symbolicator-Prefix.pch
+
+Tweak.mm
