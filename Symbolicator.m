@@ -7,7 +7,6 @@
 //
 
 #import <Symbolication/Symbolication.h>
-#import <AppSupport/AppSupport.h>
 
 #include <execinfo.h>
 #include <stdio.h>
