@@ -1,0 +1,10 @@
+
+Package/DEBIAN/control
+
+Package/Library/MobileSubstrate/DynamicLibraries/Symbolicator.dylib
+
+Package/Library/MobileSubstrate/DynamicLibraries/Symbolicator.plist
+
+PackageVersion.plist
+
+Symbolicator-Prefix.pch
