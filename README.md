@@ -1,7 +1,7 @@
 Symbolicator
 ============
 
-Symbolicator for iOS 6 - unhides "&lt;redacted>" addresses in calls made to +[NSThread callStackSymbols] or -[NSException callStackSymbols], by making use of Symbolicator.framework
+Symbolicator for iOS 6 - it's a mobile substrate lib that unhides "&lt;redacted>" addresses in calls made to +[NSThread callStackSymbols] or -[NSException callStackSymbols], by making use of Symbolicator.framework
 
 Before:
 ============
