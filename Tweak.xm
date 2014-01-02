@@ -8,13 +8,15 @@
 
 #import "Symbolicator.h"
 
+static Symbolicator *theSymbolicator = nil;
+
 %hook NSThread
 
 + (NSArray *) callStackSymbols
 {
     NSArray *addresses = [NSThread callStackReturnAddresses];
     
-    NSDictionary *symbols = [Symbolicator symbolicateAddresses:addresses]; // where the magic happens
+    NSDictionary *symbols = [theSymbolicator symbolicateAddresses:addresses]; // where the magic happens
     SCCallStackArray *callStackSymbols = [SCCallStackArray arrayWithCallStack:%orig];
     [callStackSymbols loadSymbols:symbols];
     
@@ -29,7 +31,7 @@
 {
     NSArray *addresses = [self callStackReturnAddresses];
     
-    NSDictionary *symbols = [Symbolicator symbolicateAddresses:addresses]; // where the magic happens
+    NSDictionary *symbols = [theSymbolicator symbolicateAddresses:addresses]; // where the magic happens
     SCCallStackArray *callStackSymbols = [SCCallStackArray arrayWithCallStack:%orig];
     [callStackSymbols loadSymbols:symbols];
     
@@ -37,3 +39,11 @@
 }
 
 %end
+
+%ctor
+{
+    @autoreleasepool
+    {
+        theSymbolicator = [[Symbolicator alloc] init];
+    }
+}

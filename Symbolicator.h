@@ -7,15 +7,34 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <Symbolication/Symbolication.h>
+
+#include "uthash.h"
+
+struct MethodEntry {
+    int imp;            /* we'll use this field as the key */
+    char name[192];
+    UT_hash_handle hh; /* makes this structure hashable */
+};
 
 @class CPDistributedMessagingCenter;
 
 @interface Symbolicator : NSObject
 {
-    CPDistributedMessagingCenter *_center;
+    VMUSymbolicator *_symbolicator;
+    VMUProcessDescription *_processInfo;
+    VMUMachTaskContainer *_machContainer;
+    
+    struct MethodEntry *_methodList;
+    
+    unsigned int _maxAddress;
+    unsigned int _minAddress;
+
 }
 
-+ (NSDictionary *)symbolicateAddresses:(NSArray *)addresses;
+- (NSDictionary *)symbolicateAddresses:(NSArray *)addresses;
+- (NSString *)findMethod:(NSNumber *)address slide:(unsigned)slide;
+- (unsigned)slideForAddress:(unsigned long long)address;
 
 @end
 
