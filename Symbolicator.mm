@@ -14,10 +14,13 @@
 
 #import "Symbolicator.h"
 
-#define kSCSymbolsRequest @"SCSymbolsRequest"
-#define kSCMessagingCenterName @"ro.cast.eric.Symbolicator"
+#ifdef __arm64__
+#define ADDRESS_FORMAT "0x%016llx"
+#else
+#define ADDRESS_FORMAT "0x%08llx"
+#endif
 
-MethodEntry *createMethodEntry(unsigned imp, const char *className,const char *methodName, BOOL isClassMethod)
+MethodEntry *createMethodEntry(NSUInteger imp, const char *className,const char *methodName, BOOL isClassMethod)
 {
     MethodEntry *entry = (MethodEntry *)malloc(sizeof(MethodEntry));
     entry->imp = imp;
@@ -42,9 +45,9 @@ MethodEntry *createMethodEntry(unsigned imp, const char *className,const char *m
         _processInfo = [[VMUProcessDescription alloc] initWithPid:0 orTask:mach_task_self()];
         _machContainer = [[VMUMachTaskContainer machTaskContainerWithTask:mach_task_self()] retain];
         
-        dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        //dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             [self load];
-        });
+        //});
         
     }
     return self;
@@ -54,7 +57,7 @@ MethodEntry *createMethodEntry(unsigned imp, const char *className,const char *m
 {
     NSLog(@"Symbolicator: Loading all methods addresses from objc runtime");
     
-    int numClasses;
+    unsigned int numClasses;
     unsigned int numInstanceMethods;
     unsigned int numClassMethods;
     Class * classes = NULL;
@@ -65,7 +68,7 @@ MethodEntry *createMethodEntry(unsigned imp, const char *className,const char *m
     char className[128];
     numClasses = objc_getClassList(NULL, 0);
         
-    unsigned int imp;
+    NSUInteger imp;
     
     _maxAddress = 0;
     _minAddress = 2^32;
@@ -86,7 +89,7 @@ MethodEntry *createMethodEntry(unsigned imp, const char *className,const char *m
             instanceMethods = class_copyMethodList(classes[i], &numInstanceMethods);
             
             for (int j=0; j<numClassMethods; j++) {
-                imp = (unsigned int)method_getImplementation(classMethods[j]);
+                imp = (NSUInteger)method_getImplementation(classMethods[j]);
                 entry = createMethodEntry(imp, class_getName(classes[i]), sel_getName(method_getName(classMethods[j])), YES);
                 
                 HASH_ADD_INT(_methodList, imp, entry);
@@ -96,7 +99,7 @@ MethodEntry *createMethodEntry(unsigned imp, const char *className,const char *m
             }
             
             for (int j=0; j<numInstanceMethods; j++) {
-                imp = (unsigned int)method_getImplementation(instanceMethods[j]);
+                imp = (NSUInteger)method_getImplementation(instanceMethods[j]);
                 entry = createMethodEntry(imp, class_getName(classes[i]), sel_getName(method_getName(instanceMethods[j])), NO);
                 
                 HASH_ADD_INT(_methodList, imp, entry);
@@ -115,7 +118,7 @@ MethodEntry *createMethodEntry(unsigned imp, const char *className,const char *m
     gettimeofday(&time2, NULL);
     long millis2 = (time2.tv_sec * 1000) + (time2.tv_usec / 1000);
     
-    NSLog(@"Symbolicator: All addresses loaded and sorted %ld milliseconds",millis2-millis1);//-millis1/1000.0);
+    NSLog(@"Symbolicator: All addresses loaded and sorted %ld milliseconds",millis2-millis1);
 
 }
 
@@ -126,13 +129,13 @@ MethodEntry *createMethodEntry(unsigned imp, const char *className,const char *m
     NSString *hexAddress;
     
     NSString *methodName;
-    unsigned long long longLongAddress;
+    NSUInteger longLongAddress;
     
     // Try to get the symbols for all requested addresses
     for (NSNumber *address in addresses)
     {
-        longLongAddress = [address unsignedLongLongValue];
-        hexAddress = [NSString stringWithFormat:@"0x%08llx",longLongAddress];
+        longLongAddress = [address unsignedIntegerValue];
+        hexAddress = [NSString stringWithFormat:@""ADDRESS_FORMAT,longLongAddress];
 
         
         methodName = [self findMethod:address slide:[self slideForAddress:longLongAddress]];
@@ -152,9 +155,9 @@ MethodEntry *createMethodEntry(unsigned imp, const char *className,const char *m
     return response;
 }
 
-- (NSString *)findMethod:(NSNumber *)address slide:(unsigned)slide
+- (NSString *)findMethod:(NSNumber *)address slide:(NSUInteger)slide
 {
-    unsigned int newAddress = [address unsignedIntValue];
+    NSUInteger newAddress = [address unsignedIntegerValue];
     unsigned searchCount = 0;
     
     struct MethodEntry *entry;
@@ -165,12 +168,13 @@ MethodEntry *createMethodEntry(unsigned imp, const char *className,const char *m
         HASH_FIND_INT( _methodList, &newAddress, entry );
         
         if (entry)
-            return [NSString stringWithFormat:@"(0x%08x): %s", newAddress-slide-1, entry->name];
+            return [NSString stringWithFormat:@"("ADDRESS_FORMAT"): %s", newAddress-slide-1, entry->name];
         
         searchCount++;
         
+
         if (searchCount > 8096)
-            return [NSString stringWithFormat:@"(0x%08x):", [address unsignedIntValue]-slide-1];
+             return [NSString stringWithFormat:@"("ADDRESS_FORMAT"): <not found>", [address unsignedIntegerValue]-slide-1];
         
         newAddress = newAddress-1;
         
@@ -179,22 +183,22 @@ MethodEntry *createMethodEntry(unsigned imp, const char *className,const char *m
     return nil;
 }
 
-- (unsigned)slideForAddress:(unsigned long long)address
+- (NSUInteger)slideForAddress:(NSUInteger)address
 {
     VMUMemory_NonContiguousTask *memory;
     VMUMachOHeader *header;
     VMURange range;
-    unsigned long long textStart;
+    NSUInteger textStart;
     
     for (NSDictionary *image in _processInfo.binaryImages)
     {
-        range.location = [image[@"StartAddress"] unsignedLongLongValue];
-        range.length = [image[@"Size"] unsignedLongLongValue];
+        range.location = [image[@"StartAddress"] unsignedIntegerValue];
+        range.length = [image[@"Size"] unsignedIntegerValue];
         
         if (address >= range.location &&
             address <= range.location+range.length)
         {
-            memory = [VMUMemory_NonContiguousTask memoryWithMachTaskContainer:_machContainer addressRange:range architecture:[VMUArchitecture armArchitecture]];
+            memory = [VMUMemory_NonContiguousTask memoryWithMachTaskContainer:_machContainer addressRange:range architecture:[VMUArchitecture currentArchitecture]];
             header = [VMUMachOHeader headerWithMemory:memory address:range.location name:image[@"Identifier"] path:image[@"ExecutablePath"] timestamp:[NSDate date]];
             textStart = [[header segmentNamed:@"__TEXT"] vmaddr];
             
@@ -238,17 +242,17 @@ MethodEntry *createMethodEntry(unsigned imp, const char *className,const char *m
     return self;
 }
 
-- (unsigned int)count
+- (NSUInteger)count
 {
     return [_descriptions count];
 }
 
-- (id)objectAtIndex:(unsigned int)index
+- (id)objectAtIndex:(NSUInteger)index
 {
     return _descriptions[index];
 }
 
-- (id)descriptionWithLocale:(id)locale indent:(unsigned int)level
+- (id)descriptionWithLocale:(id)locale indent:(NSUInteger)level
 {
     NSString *indentation = [@"" stringByPaddingToLength:level withString:@" " startingAtIndex:0];
     
