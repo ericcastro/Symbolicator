@@ -1,7 +1,7 @@
 Symbolicator
 ============
 
-(not yet working on arm64)
+(arm64 support is _experimental_)
 
 Symbolicator for iOS 6 and iOS 7 - it's a Cydia Substrate library that reveals "&lt;redacted>" symbol names at runtime in calls made to +[NSThread callStackSymbols] or -[NSException callStackSymbols], by making use of Symbolicator.framework and the ObjC runtime
 
