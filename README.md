@@ -1,7 +1,10 @@
 Symbolicator
 ============
 
-Now supporting ARM64 and ARM7
+Now supporting ARM64 and ARM7!
+
+You require theos to compile the sources, or you can skip that step and just install a precompiled binary from this deb package:
+http://eric.cast.ro/debs/ro.cast.eric.Symbolicator_0.0.1-1_iphoneos-arm.deb
 
 Symbolicator for iOS 6 and iOS 7 - it's a Cydia Substrate library that reveals "&lt;redacted>" symbol names at runtime in calls made to +[NSThread callStackSymbols] or -[NSException callStackSymbols], by making use of Symbolicator.framework and the ObjC runtime
 
