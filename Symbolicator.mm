@@ -15,9 +15,9 @@
 #import "Symbolicator.h"
 
 #ifdef __arm64__
-#define ADDRESS_FORMAT "0x%016llx"
+#define ADDRESS_FORMAT "0x%016lx"
 #else
-#define ADDRESS_FORMAT "0x%08llx"
+#define ADDRESS_FORMAT "0x%08x"
 #endif
 
 MethodEntry *createMethodEntry(NSUInteger imp, const char *className,const char *methodName, BOOL isClassMethod)
@@ -161,6 +161,17 @@ MethodEntry *createMethodEntry(NSUInteger imp, const char *className,const char 
     unsigned searchCount = 0;
     
     struct MethodEntry *entry;
+
+    for(entry=_methodList; entry != NULL; entry=(MethodEntry *)entry->hh.next) {
+        
+
+        if (strcmp(entry->name,"-[UIApplication _callInitializationDelegatesForURL:payload:suspended:]")==0)
+        {
+            NSLog(@"user id 0x%08x %x vs %s\n", entry->imp,slide, entry->name);    
+            break;
+        }
+    }
+
     
     do {
         
