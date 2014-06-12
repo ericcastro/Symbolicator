@@ -15,7 +15,7 @@ http://eric.cast.ro/debs/ro.cast.eric.Symbolicator_0.0.1-1_iphoneos-arm.deb
 
 The included filter plist hooks into SpringBoard only - you can manually modify it to suit your needs but... (read below)
 
-### Important: ######
+### Important ######
 **Do NOT inject this library into all processes**. Choose the ones you will work with in your filter plist, because current version also uses the ObjC runtime to load all class and method names and while optimized, it is still very expensive. If you load it in every process, system will be likely to crash.
 
 Before:
