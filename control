@@ -1,0 +1,9 @@
+Package: ro.cast.eric.Symbolicator
+Name: Symbolicator
+Depends: mobilesubstrate
+Version: 0.0.1
+Architecture: iphoneos-arm
+Description: An awesome MobileSubstrate tweak!
+Maintainer: Eric Castro
+Author: Eric Castro
+Section: Tweaks
