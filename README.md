@@ -1,7 +1,7 @@
 Symbolicator
 ============
 
-Arm64 support is experimental.
+Now supporting ARM64 and ARM7
 
 Symbolicator for iOS 6 and iOS 7 - it's a Cydia Substrate library that reveals "&lt;redacted>" symbol names at runtime in calls made to +[NSThread callStackSymbols] or -[NSException callStackSymbols], by making use of Symbolicator.framework and the ObjC runtime
 
