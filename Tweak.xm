@@ -8,6 +8,7 @@
 
 #import "Symbolicator.h"
 
+static NSString *preferenceFilePath = @"/private/var/mobile/Library/Preferences/ro.cast.eric.Symbolicator.plist";
 static Symbolicator *theSymbolicator = nil;
 
 %hook NSThread
@@ -15,11 +16,11 @@ static Symbolicator *theSymbolicator = nil;
 + (NSArray *) callStackSymbols
 {
     NSArray *addresses = [NSThread callStackReturnAddresses];
-    
+
     NSDictionary *symbols = [theSymbolicator symbolicateAddresses:addresses]; // where the magic happens
     SCCallStackArray *callStackSymbols = [SCCallStackArray arrayWithCallStack:%orig];
     [callStackSymbols loadSymbols:symbols];
-    
+
     return callStackSymbols;
 }
 
@@ -30,11 +31,11 @@ static Symbolicator *theSymbolicator = nil;
 - (NSArray *) callStackSymbols
 {
     NSArray *addresses = [self callStackReturnAddresses];
-    
+
     NSDictionary *symbols = [theSymbolicator symbolicateAddresses:addresses]; // where the magic happens
     SCCallStackArray *callStackSymbols = [SCCallStackArray arrayWithCallStack:%orig];
     [callStackSymbols loadSymbols:symbols];
-    
+
     return callStackSymbols;
 }
 
@@ -44,6 +45,22 @@ static Symbolicator *theSymbolicator = nil;
 {
     @autoreleasepool
     {
-        theSymbolicator = [[Symbolicator alloc] init];
+
+        // Load preferences
+        NSMutableDictionary *preferences = [[NSMutableDictionary alloc] initWithContentsOfFile:preferenceFilePath];
+        // Only inject into Apps the user has selected in the settings panel
+        NSString *appId = [[NSBundle mainBundle] bundleIdentifier];
+        id shouldHook = [preferences objectForKey:appId];
+        [preferences release];
+
+        if ((shouldHook == nil) || (![shouldHook boolValue]))
+        {
+            // Don't load Symbolicator
+        }
+        else
+        {
+            NSLog(@"Symbolicator loaded");
+            theSymbolicator = [[Symbolicator alloc] init];
+        }
     }
 }

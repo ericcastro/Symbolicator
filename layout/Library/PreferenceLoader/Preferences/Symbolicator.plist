@@ -1,0 +1,28 @@
+{
+	entry = {
+		bundle = AppList;
+		cell = PSLinkCell;
+		isController = 1;
+		label = Symbolicator;
+		ALSettingsPath = "/var/mobile/Library/Preferences/ro.cast.eric.Symbolicator.plist";
+		ALSettingsKeyPrefix = "";
+		ALChangeNotification = "ro.cast.eric.Symbolicator";
+		ALAllowsSelection = 1;
+		ALSectionDescriptors = (
+			{
+				title = "System Applications";
+				predicate = "isSystemApplication = TRUE";
+				"cell-class-name" = ALSwitchCell;
+				"icon-size" = 29;
+				"suppress-hidden-apps" = 1;
+			},
+			{
+				title = "User Applications";
+				predicate = "isSystemApplication = FALSE";
+				"cell-class-name" = ALSwitchCell;
+				"icon-size" = 29;
+				"suppress-hidden-apps" = 1;
+			},
+		);
+	};
+}
