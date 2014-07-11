@@ -1,3 +1,6 @@
+theos
+.theos
+*.deb
 
 Package/DEBIAN/control
 
