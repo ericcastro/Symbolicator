@@ -20,8 +20,8 @@ The included filter plist hooks into SpringBoard only - you can manually modify 
 
 Before:
 ============
-![Before](http://i.minus.com/jfz6PHQIhjxVS.png)
+![Before](http://i.imgur.com/ZwDPXU0.png)
 
 After:
 ============
-![After](http://i.minus.com/jrlBCbM6FM19C.png)
+![After](http://i.imgur.com/6Tnhorv.png)
