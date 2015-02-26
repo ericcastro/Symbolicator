@@ -22,7 +22,7 @@ MethodEntry *createMethodEntry(NSUInteger imp, const char *className,const char 
 {
     MethodEntry *entry = (MethodEntry *)malloc(sizeof(MethodEntry));
     entry->imp = imp;
-    entry->name[0] = NO ? '+' : '-';
+    entry->name[0] = isClassMethod ? '+' : '-';
     entry->name[1] = '[';
     strcpy(entry->name+2,className);
     entry->name[strlen(className)+2] = ' ';
